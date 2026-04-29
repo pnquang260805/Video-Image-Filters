@@ -49,7 +49,13 @@ def video_mode(ascii_chars):
         video_processor(path, convert_to_ascii, ascii_chars=ascii_chars, cols=cols)
 
 if __name__ == "__main__":
-    ascii_chars = get_level(10)
+    while True:
+        try:
+            ascii_chars = get_level(int(input("Enter level: ")))
+            break
+        except Exception:
+            continue
+
     
     while True:
         print("\n=== ASCII ART GENERATOR ===")
