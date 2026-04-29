@@ -3,6 +3,7 @@ import numpy as np
 from services.video_service import video_processor
 from services.PIL_service import convert_to_ascii, open_image, ascii_to_image
 from services.ASCII_char import get_level
+from services.filters import blur
 
 def image_mode(ascii_chars):
     path = input("Enter image path: ").strip()
@@ -17,6 +18,8 @@ def image_mode(ascii_chars):
         
         print("\n1. Normal Display")
         print("2. Convert to ASCII")
+        print("3. Blur Display")
+        print("4. Blur + ASCII")
         choice = input("Choice: ")
         
         if choice == '1':
@@ -30,6 +33,19 @@ def image_mode(ascii_chars):
             cv2.imshow("ASCII Image", ascii_img)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
+        elif choice == '3':
+            blurred_img = blur(img_np)
+            cv2.imshow("Blurred Image", blurred_img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+        elif choice == '4':
+            cols = int(input("Enter columns (default 100): ") or "100")
+            blurred_img = blur(img_pil)
+            res = convert_to_ascii(blurred_img, ascii_chars, cols=cols)
+            ascii_img = ascii_to_image(res)
+            cv2.imshow("Blurred ASCII Image", ascii_img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
     except Exception as e:
         print(f"Error: {e}")
 
@@ -40,6 +56,8 @@ def video_mode(ascii_chars):
         
     print("\n1. Normal Display")
     print("2. Convert to ASCII")
+    print("3. Blur Display")
+    print("4. Blur + ASCII")
     choice = input("Choice: ")
     
     if choice == '1':
@@ -47,6 +65,15 @@ def video_mode(ascii_chars):
     elif choice == '2':
         cols = int(input("Enter columns (default 100): ") or "100")
         video_processor(path, convert_to_ascii, ascii_chars=ascii_chars, cols=cols)
+    elif choice == '3':
+        video_processor(path, blur)
+    elif choice == '4':
+        cols = int(input("Enter columns (default 100): ") or "100")
+        # Define a wrapper to apply blur then ascii
+        def blur_ascii(frame, **kwargs):
+            blurred = blur(frame)
+            return convert_to_ascii(blurred, **kwargs)
+        video_processor(path, blur_ascii, ascii_chars=ascii_chars, cols=cols)
 
 if __name__ == "__main__":
     while True:
